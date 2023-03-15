@@ -6,9 +6,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
@@ -68,31 +71,72 @@ var openDialog = mutableStateOf(false)
 
 @Composable
 fun TaskAdder() {
+    var title by rememberSaveable { mutableStateOf("") }
+    var description by rememberSaveable { mutableStateOf("") }
+
+    val close = {
+        title = ""
+        description = ""
+        openDialog.value = false
+    }
+
     if (openDialog.value) {
         AlertDialog(
             onDismissRequest = {
-                openDialog.value = false
+                close()
             },
             confirmButton = {
                 Button(content = {
-                        Text("")
+                        Text("Sausage Roll")
                     }, onClick = {
-                    openDialog.value = false
+                    val newId = if (todos.size > 0) todos.last().id+1 else 0
+                    todos.add(Todo(newId, title, description, false))
+                    close()
                 })
             },
             dismissButton = {
                 Button(content = {
                     Text("Sling your hook")
                 }, onClick = {
-                    openDialog.value = false
+                    close()
                 })
             },
             text = {
                 Column {
-
+                    BasicTextField(value = title,
+                        onValueChange = { title = it },
+                        decorationBox = {
+                            BoxDecoration(title, "Title")
+                        })
+                    BasicTextField(value = description,
+                        onValueChange = { description = it },
+                        decorationBox = {
+                            BoxDecoration(description, "Description")
+                        })
                 }
             }
         )
+    }
+}
+
+@Composable
+fun BoxDecoration(value: String, placeholder: String) {
+    Box(
+        modifier = Modifier
+            .padding(horizontal = 64.dp)
+            .fillMaxWidth()
+            .border(
+                width = 2.dp,
+                color = Color(0xFFAAE9E6),
+                shape = RoundedCornerShape(size = 16.dp)
+            )
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+    ) {
+        if (value.isEmpty()) {
+            Text(text = placeholder)
+        } else {
+            Text(text = value)
+        }
     }
 }
 
