@@ -73,7 +73,20 @@ fun MattsAppView() {
     Scaffold(modifier = Modifier.fillMaxSize(),
         topBar = {
             SmallTopAppBar(title = {
-                Button(content = { Text(text = "Clear them")}, onClick = { todos.clear() }, colors = ButtonDefaults.buttonColors(containerColor = MidGreen))
+                Row {
+                    Button(content = { Text(text = "Clear them")}, onClick = { todos.clear() }, colors = ButtonDefaults.buttonColors(containerColor = MidGreen))
+                    Button(content = { Text(text = "Clear done")},
+                        onClick = {
+                            var removed = 0
+                            for (i in 0 until todos.size) {
+                                if (todos[i-removed].isDone) {
+                                    todos.removeAt(i-removed)
+                                    removed++
+                                }
+                            }
+                        }, colors = ButtonDefaults.buttonColors(containerColor = MidGreen)
+                    )
+                }
             }, colors = TopAppBarDefaults.smallTopAppBarColors(
                 containerColor = DarkGreen,
                 titleContentColor = MidGreen
