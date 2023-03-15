@@ -6,12 +6,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -66,80 +63,6 @@ fun CycleObserver(context: Context, lifecycle: LifecycleOwner) {
         }
         lifecycle.lifecycle.addObserver(observer)
         onDispose { lifecycle.lifecycle.removeObserver(observer) }
-    }
-}
-
-var openDialog = mutableStateOf(false)
-
-@Composable
-fun TaskAdder() {
-    var title by rememberSaveable { mutableStateOf("") }
-    var description by rememberSaveable { mutableStateOf("") }
-
-    val close = {
-        title = ""
-        description = ""
-        openDialog.value = false
-    }
-
-    if (openDialog.value) {
-        AlertDialog(
-            onDismissRequest = {
-                close()
-            },
-            confirmButton = {
-                Button(content = {
-                        Text("Sausage Roll")
-                    }, onClick = {
-                    val newId = if (todos.size > 0) todos.last().id+1 else 0
-                    todos.add(Todo(newId, title, description, false))
-                    close()
-                }, colors = ButtonDefaults.buttonColors(containerColor = MidGreen))
-            },
-            dismissButton = {
-                Button(content = {
-                    Text("Sling your hook")
-                }, onClick = {
-                    close()
-                }, colors = ButtonDefaults.buttonColors(containerColor = MidGreen))
-            },
-            text = {
-                Column {
-                    BasicTextField(value = title,
-                        onValueChange = { title = it },
-                        decorationBox = {
-                            BoxDecoration(title, "Title")
-                        })
-                    Text(text = "")
-                    BasicTextField(value = description,
-                        onValueChange = { description = it },
-                        decorationBox = {
-                            BoxDecoration(description, "Description")
-                        })
-                }
-            }
-        )
-    }
-}
-
-@Composable
-fun BoxDecoration(value: String, placeholder: String) {
-    Box(
-        modifier = Modifier
-            .padding(horizontal = 64.dp)
-            .fillMaxWidth()
-            .border(
-                width = 2.dp,
-                color = MidGreen,
-                shape = RoundedCornerShape(size = 16.dp)
-            )
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-    ) {
-        if (value.isEmpty()) {
-            Text(text = placeholder, modifier = Modifier.align(Alignment.Center))
-        } else {
-            Text(text = value, modifier = Modifier.align(Alignment.Center))
-        }
     }
 }
 
