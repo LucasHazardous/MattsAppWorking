@@ -13,10 +13,12 @@ import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -24,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.github.lucashazardous.mattsappworking.ui.theme.MattsAppWorkingTheme
+import com.github.lucashazardous.mattsappworking.ui.theme.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -92,14 +94,14 @@ fun TaskAdder() {
                     val newId = if (todos.size > 0) todos.last().id+1 else 0
                     todos.add(Todo(newId, title, description, false))
                     close()
-                })
+                }, colors = ButtonDefaults.buttonColors(containerColor = MidGreen))
             },
             dismissButton = {
                 Button(content = {
                     Text("Sling your hook")
                 }, onClick = {
                     close()
-                })
+                }, colors = ButtonDefaults.buttonColors(containerColor = MidGreen))
             },
             text = {
                 Column {
@@ -108,6 +110,7 @@ fun TaskAdder() {
                         decorationBox = {
                             BoxDecoration(title, "Title")
                         })
+                    Text(text = "")
                     BasicTextField(value = description,
                         onValueChange = { description = it },
                         decorationBox = {
@@ -127,15 +130,15 @@ fun BoxDecoration(value: String, placeholder: String) {
             .fillMaxWidth()
             .border(
                 width = 2.dp,
-                color = Color(0xFFAAE9E6),
+                color = MidGreen,
                 shape = RoundedCornerShape(size = 16.dp)
             )
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
         if (value.isEmpty()) {
-            Text(text = placeholder)
+            Text(text = placeholder, modifier = Modifier.align(Alignment.Center))
         } else {
-            Text(text = value)
+            Text(text = value, modifier = Modifier.align(Alignment.Center))
         }
     }
 }
@@ -147,15 +150,17 @@ fun MattsAppView() {
     Scaffold(modifier = Modifier.fillMaxSize(),
         topBar = {
             SmallTopAppBar(title = {
-                Button(content = { Text(text = "Clear them")}, onClick = { todos.clear() })
+                Button(content = { Text(text = "Clear them")}, onClick = { todos.clear() }, colors = ButtonDefaults.buttonColors(containerColor = MidGreen))
             }, colors = TopAppBarDefaults.smallTopAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                titleContentColor = MaterialTheme.colorScheme.onErrorContainer
+                containerColor = DarkGreen,
+                titleContentColor = MidGreen
             ))
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { openDialog.value = !openDialog.value }) {
-                
+            FloatingActionButton(onClick = { openDialog.value = !openDialog.value },
+                containerColor = MidGreen, contentColor = LightGreen) {
+                Icon(Icons.Filled.Add, "Add thingy",
+                    modifier = Modifier.size(20.dp))
             }
         }) { _ ->
         TaskAdder()
@@ -172,26 +177,39 @@ fun MattsAppView() {
 
 @Composable
 fun TodoItem(todo: Todo) {
-    val selectText = {
-        if (todo.isDone) "Done" else "To do"
+    val colorMapper = HashMap<Int, Color>();
+    colorMapper[0] = Green
+    colorMapper[1] = MidGreen
+
+    var doneText by rememberSaveable { mutableStateOf("") }
+    var currentColor by rememberSaveable { mutableStateOf(0) }
+
+    val selectTextAndColor = {
+        if(todo.isDone) {
+            doneText = "Done"
+            currentColor = 0
+        } else {
+            doneText = "To do"
+            currentColor = 1
+        }
     }
 
-    var doneText by rememberSaveable {
-        mutableStateOf(selectText())
-    }
+    selectTextAndColor()
 
     Box {
-        Column {
+        Column(modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally) {
             Text(todo.title)
             Text(todo.description)
 
             Row {
                 Button(onClick = {
                     todo.isDone = !todo.isDone
-                    doneText = selectText()
+                    selectTextAndColor()
                 }, Modifier.weight(5F),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (todo.isDone) MaterialTheme.colorScheme.primaryContainer else Color.Green
+                        containerColor = colorMapper[currentColor]!!
                     )) {
                     Text(doneText)
                 }
